@@ -1,0 +1,1943 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume ATS Optimizer</title>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700;900&display=swap"
+        rel="stylesheet">
+    <style>
+        @media print {
+            @page {
+                size: A4;
+                margin: 0;
+            }
+
+            body.print-mode * {
+                visibility: hidden;
+            }
+
+            body.print-mode .print-target,
+            body.print-mode .print-target * {
+                visibility: visible;
+            }
+
+            body.print-mode .print-target {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 210mm !important;
+                min-height: 297mm !important;
+                margin: 0 !important;
+                padding: 15mm !important;
+                box-shadow: none !important;
+            }
+        }
+
+        .exporting-pdf {
+            box-shadow: none !important;
+            border: none !important;
+            margin: 0 !important;
+            overflow: visible !important;
+            position: static !important;
+        }
+
+        .exporting-pdf .resume-document {
+            box-shadow: none !important;
+        }
+
+        :root {
+            --bg-dark: #0f172a;
+            --bg-panel: rgba(30, 41, 59, 0.7);
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --accent: #8b5cf6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Background Animated Orbs */
+        .background-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 20s infinite ease-in-out alternate;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--primary);
+            top: -100px;
+            left: -100px;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: var(--accent);
+            bottom: -150px;
+            right: -100px;
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 300px;
+            height: 300px;
+            background: #0ea5e9;
+            top: 40%;
+            left: 30%;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(50px, 50px) scale(1.1);
+            }
+        }
+
+        /* Glassmorphism utility */
+        .glass-panel {
+            background: var(--bg-panel);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding: 2rem;
+            gap: 2rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            height: fit-content;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+        }
+
+        .brand-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            background: -webkit-linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .settings-section h3,
+        .workflow-steps h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .settings-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: rgba(15, 23, 42, 0.5);
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        .workflow-steps ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .workflow-steps li {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .step-num {
+            background: var(--primary);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        /* Sidebar Navigation */
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+        }
+
+        .nav-btn.active {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .main-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+        }
+
+        .highlight {
+            background: -webkit-linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Inputs Grid */
+        .inputs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .input-card {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .input-card h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .file-upload-wrapper {
+            flex: 1;
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            gap: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: rgba(15, 23, 42, 0.3);
+        }
+
+        .file-upload-wrapper.drag-over {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--primary);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .file-name-display {
+            font-size: 0.85rem;
+            color: var(--success);
+            word-break: break-all;
+        }
+
+        textarea {
+            flex: 1;
+            width: 100%;
+            min-height: 200px;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            color: var(--text-main);
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            transition: border 0.3s ease;
+        }
+
+        textarea:focus {
+            border-color: var(--primary);
+        }
+
+        /* Action Button */
+        .btn-action {
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
+        }
+
+        /* Build Form */
+        .build-form {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .build-form h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        /* Loading */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            gap: 1rem;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Results Area */
+        .section-heading {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            grid-template-rows: auto auto;
+            gap: 1.5rem;
+        }
+
+        .score-card {
+            padding: 1.5rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .score-circle {
+            width: 150px;
+            margin-top: 1rem;
+        }
+
+        .circular-chart {
+            display: block;
+            margin: 0 auto;
+            max-width: 80%;
+            max-height: 250px;
+        }
+
+        .circle-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 3.8;
+        }
+
+        .circle {
+            fill: none;
+            stroke-width: 3.8;
+            stroke-linecap: round;
+            transition: stroke-dasharray 1s ease-out;
+        }
+
+        .percentage {
+            fill: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.5em;
+            font-weight: bold;
+            text-anchor: middle;
+        }
+
+        .skills-card {
+            padding: 1.5rem;
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .skill-tag {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* Resume Builder Workspace */
+        .builder-workspace {
+            grid-column: 2;
+            grid-row: 1 / 3;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            gap: 1rem;
+        }
+
+        .workspace-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .workspace-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .template-selector {
+            display: flex;
+            gap: 0.25rem;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.25rem;
+            border-radius: 8px;
+            margin-right: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .template-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .template-btn:hover {
+            color: var(--text-main);
+        }
+
+        .template-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .editor-preview-container {
+            display: flex;
+            gap: 1rem;
+            height: 600px;
+        }
+
+        .pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .pane-label {
+            padding: 0.5rem 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        #markdown-editor {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 1rem;
+            color: #e2e8f0;
+            font-family: 'Fira Code', monospace, sans-serif;
+            font-size: 0.9rem;
+            resize: none;
+            outline: none;
+            line-height: 1.5;
+        }
+
+        .resume-document-wrapper {
+            flex: 1;
+            background: #e2e8f0;
+            /* Soft gray behind the paper */
+            overflow-y: auto;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* The actual PDF Paper */
+        .resume-document {
+            background: #ffffff !important;
+            color: #000000 !important;
+            width: 210mm;
+            /* A4 width */
+            min-height: 297mm !important;
+            /* A4 height */
+            height: auto !important;
+            padding: 20mm;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            line-height: 1.4;
+            font-size: 11pt;
+        }
+
+        .resume-document h1,
+        .resume-document h2,
+        .resume-document h3 {
+            color: #1e293b;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .resume-document h1 {
+            font-size: 24pt;
+            text-align: center;
+            border-bottom: 2px solid #cbd5e1;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .resume-document h2 {
+            font-size: 14pt;
+            border-bottom: 1px solid #cbd5e1;
+            padding-bottom: 0.2rem;
+        }
+
+        .resume-document ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .resume-document p {
+            margin-bottom: 0.5rem;
+        }
+
+        .resume-document strong {
+            font-weight: 600;
+        }
+
+        /* Granular Live Builder Layout */
+        .builder-layout {
+            display: flex;
+            gap: 1.5rem;
+            height: calc(100vh - 150px);
+            min-height: 700px;
+        }
+
+        .builder-controls {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .builder-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .builder-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .template-selector-container {
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .builder-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .builder-tabs {
+            width: 200px;
+            background: rgba(0, 0, 0, 0.2);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 1rem 0;
+            overflow-y: auto;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+            border-left-color: var(--primary);
+        }
+
+        .builder-forms {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .form-tab-content h4 {
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            color: var(--primary);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .builder-preview {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .preview-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .preview-status {
+            font-size: 0.85rem;
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+        }
+
+        .btn-small {
+            padding: 0.4rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        /* Template Styles inside Live Preview */
+        .template-classic {
+            font-family: "Times New Roman", Times, serif;
+        }
+
+        .template-classic .resume-name {
+            text-align: center;
+            font-size: 24pt;
+            text-transform: uppercase;
+            border-bottom: 2px solid #000;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+
+        .template-classic .resume-contact {
+            text-align: center;
+            font-size: 10pt;
+            margin-bottom: 1.5rem;
+        }
+
+        .template-classic .resume-section-title {
+            font-size: 12pt;
+            text-transform: uppercase;
+            border-bottom: 1px solid #000;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .template-modern {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        .template-modern .resume-header {
+            background: #1e293b;
+            color: white;
+            padding: 20px;
+            margin: -20mm -20mm 20px -20mm;
+        }
+
+        .template-modern .resume-name {
+            font-size: 28pt;
+            margin: 0;
+            color: white;
+            border: none;
+        }
+
+        .template-modern .resume-contact {
+            color: #cbd5e1;
+            font-size: 10pt;
+            margin-top: 5px;
+        }
+
+        .template-modern .resume-section-title {
+            font-size: 14pt;
+            color: #3b82f6;
+            border-bottom: 2px solid #e2e8f0;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 5px;
+        }
+
+        .template-minimal {
+            font-family: 'Inter', sans-serif;
+            color: #333;
+        }
+
+        .template-minimal .resume-name {
+            font-size: 20pt;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 0.25rem;
+            border: none;
+        }
+
+        .template-minimal .resume-contact {
+            font-size: 9pt;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .template-minimal .resume-section-title {
+            font-size: 11pt;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #999;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .resume-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            font-weight: bold;
+        }
+
+        .resume-item-subheader {
+            font-style: italic;
+            color: #555;
+            margin-bottom: 0.5rem;
+        }
+
+        .template-modern .resume-item-subheader {
+            color: #64748b;
+        }
+
+        /* --- LANDING PAGE STYLES --- */
+
+        .hero-section {
+            text-align: center;
+            padding: 4rem 2rem;
+            margin-bottom: 2rem;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.0) 100%);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-desc {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 2.5rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .hero-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        .stat-card h3 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+        }
+
+        .stat-card p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .info-section {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-card {
+            padding: 1.5rem;
+        }
+
+        .info-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        .info-card p {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .step-card {
+            padding: 2rem 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 5rem;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.03);
+            z-index: 0;
+        }
+
+        .step-card h4,
+        .step-card p {
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .step-card p {
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        /* FAQ Accordion Styles */
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .faq-cat-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .faq-cat-btn:hover,
+        .faq-cat-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .faq-accordion {
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 1.25rem 1.5rem;
+            font-size: 1.05rem;
+            color: var(--text-main);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .faq-question:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .faq-question i {
+            transition: transform 0.3s ease;
+            color: var(--primary);
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+        }
+
+        .faq-answer p {
+            padding: 0 1.5rem 1.25rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* Mobile Responsiveness for Builder */
+        @media (max-width: 1024px) {
+            .editor-preview-container {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .pane {
+                height: 500px;
+            }
+
+            .resume-document-wrapper {
+                padding: 1rem;
+            }
+
+            .resume-document {
+                width: 100%;
+                min-height: auto;
+                padding: 10mm;
+            }
+
+            .builder-workspace {
+                grid-column: 1;
+            }
+
+            .builder-layout {
+                flex-direction: column;
+                height: auto;
+                min-height: auto;
+            }
+
+            .builder-body {
+                flex-direction: column;
+                overflow: visible;
+            }
+
+            .builder-tabs {
+                width: 100%;
+                flex-direction: row;
+                overflow-x: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                white-space: nowrap;
+            }
+
+            .tab-btn {
+                border-left: none;
+                border-bottom: 3px solid transparent;
+                padding: 1rem;
+            }
+
+            .tab-btn.active {
+                border-left-color: transparent;
+                border-bottom-color: var(--primary);
+            }
+
+            .builder-forms,
+            .builder-preview {
+                overflow: visible;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .app-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: space-between;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tailored-card {
+                grid-column: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .inputs-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .input-group[style*="grid-column: span 2"] {
+                grid-column: span 1 !important;
+            }
+
+            .builder-actions {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* --- Editor / Preview Split Layout --- */
+        .editor-preview-container {
+            display: flex;
+            gap: 1.5rem;
+            height: 750px;
+            margin-top: 1rem;
+        }
+
+        .pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .pane-label {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #markdown-editor {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 1rem;
+            color: var(--text-main);
+            font-family: 'Inter', monospace;
+            font-size: 0.95rem;
+            resize: none;
+            line-height: 1.6;
+            outline: none;
+        }
+
+        #tailored-preview {
+            background: #ffffff !important;
+            color: #000000 !important;
+            width: 210mm;
+            min-height: 297mm !important;
+            height: auto !important;
+            padding: 20mm;
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            line-height: 1.4;
+            font-size: 11pt;
+            margin: 0 auto;
+        }
+
+        #tailored-preview h1 {
+            font-size: 24pt;
+            text-align: center;
+            border-bottom: 2px solid #cbd5e1;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+
+        #tailored-preview h2 {
+            font-size: 14pt;
+            border-bottom: 1px solid #cbd5e1;
+            padding-bottom: 0.2rem;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: #1e293b;
+        }
+
+        #tailored-preview h3 {
+            color: #1e293b;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        #tailored-preview ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        #tailored-preview p {
+            margin-bottom: 0.5rem;
+        }
+
+        #tailored-preview strong {
+            font-weight: 600;
+        }
+
+        @media (max-width: 1024px) {
+            .editor-preview-container {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .pane {
+                height: 500px;
+            }
+        }
+    </style>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="background-elements">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar / Settings -->
+        <aside class="sidebar glass-panel">
+            <div class="brand">
+                <i class="fa-solid fa-robot brand-icon"></i>
+                <h2>ByteHearts</h2>
+            </div>
+
+
+            <div class="nav-links">
+                <button class="nav-btn active" id="nav-home"><i class="fa-solid fa-house"></i> Home</button>
+                <button class="nav-btn" id="nav-optimizer"><i class="fa-solid fa-magnifying-glass-chart"></i> Check
+                    Resume</button>
+                <button class="nav-btn" id="nav-builder"><i class="fa-solid fa-file-signature"></i> Create
+                    Resume</button>
+            </div>
+
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header id="main-header" class="hidden">
+                <h1 class="main-title">AI-Powered ATS <span class="highlight">Optimization</span></h1>
+                <p class="subtitle">Boost your interview chances with AI-driven resume enhancement.</p>
+            </header>
+
+            <div id="home-section">
+                <!-- Landing Page Content -->
+                <div class="hero-section">
+                    <h1 class="hero-title">AI-Powered ATS <span class="highlight">Analysis</span></h1>
+                    <h2 class="hero-subtitle">Beat the bots. Land the interview.</h2>
+                    <p class="hero-desc">ByteHearts scans your resume against Applicant Tracking Systems in seconds — so
+                        hiring managers actually see your application, not the recycle bin.</p>
+                    <div class="hero-actions">
+                        <button class="btn-primary" id="hero-cta-check">Check My Resume Free <i
+                                class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card glass-panel">
+                        <h3>94%</h3>
+                        <p>ATS pass rate improvement</p>
+                    </div>
+                    <div class="stat-card glass-panel">
+                        <h3>3&times;</h3>
+                        <p>faster interview callbacks</p>
+                    </div>
+                    <div class="stat-card glass-panel">
+                        <h3>75%</h3>
+                        <p>of resumes never seen by humans</p>
+                    </div>
+                    <div class="stat-card glass-panel">
+                        <h3>98%</h3>
+                        <p>of Fortune 500 use ATS</p>
+                    </div>
+                    <div class="stat-card glass-panel">
+                        <h3>6 sec</h3>
+                        <p>average recruiter scan time</p>
+                    </div>
+                    <div class="stat-card glass-panel">
+                        <h3>40%</h3>
+                        <p>of qualified candidates rejected</p>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h2 class="section-title">What is ATS?</h2>
+                    <p class="section-subtitle">The invisible gatekeeper between you & your dream job</p>
+                    <div class="info-grid">
+                        <div class="info-card glass-panel">
+                            <h4>🤖 What is an ATS?</h4>
+                            <p>An Applicant Tracking System (ATS) is software companies use to collect, filter, and
+                                manage job applications. It automatically scans and ranks resumes before a human ever
+                                sees them. If your resume doesn't match the ATS criteria, you're out — even if you're
+                                perfectly qualified.</p>
+                        </div>
+                        <div class="info-card glass-panel">
+                            <h4>🎯 Why does it matter?</h4>
+                            <p>Over 98% of Fortune 500 companies use ATS software. The system looks for specific
+                                keywords, formatting requirements, and skill matches. A resume that looks great to human
+                                eyes can be completely invisible to an ATS if it's not optimized correctly.</p>
+                        </div>
+                        <div class="info-card glass-panel">
+                            <h4>🔑 How to beat it?</h4>
+                            <p>Use clean, simple formatting. Mirror the job description's keywords naturally. Avoid
+                                tables, graphics, and fancy fonts. Use standard section headings. ByteHearts analyzes
+                                all these factors and gives you an exact score with actionable fixes.</p>
+                        </div>
+                        <div class="info-card glass-panel">
+                            <h4>📈 What ByteHearts does</h4>
+                            <p>We parse your resume the same way ATS software does, compare it against your target job
+                                description, score keyword matches, flag formatting issues, and give you specific
+                                suggestions to improve — not vague advice, real, actionable changes.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h2 class="section-title">❓ FAQ</h2>
+                    <p class="section-subtitle">Got questions?<br>Everything you need to know about ByteHearts, ATS, and
+                        getting hired faster.</p>
+
+                    <div class="faq-container">
+                        <div class="faq-categories">
+                            <button class="faq-cat-btn active" data-category="all">All</button>
+                            <button class="faq-cat-btn" data-category="ats">About ATS</button>
+                            <button class="faq-cat-btn" data-category="app">Using ByteHearts</button>
+                            <button class="faq-cat-btn" data-category="pricing">Pricing</button>
+                            <button class="faq-cat-btn" data-category="tips">Resume Tips</button>
+                        </div>
+
+                        <div class="faq-accordion glass-panel">
+                            <div class="faq-item" data-category="ats">
+                                <button class="faq-question">What exactly is an ATS and do all companies use one? <i
+                                        class="fa-solid fa-plus"></i></button>
+                                <div class="faq-answer">
+                                    <p>An ATS (Applicant Tracking System) is software used to manage applications. Over
+                                        98% of Fortune 500 companies use them to parse and rank resumes before a human
+                                        ever sees them.</p>
+                                </div>
+                            </div>
+                            <div class="faq-item" data-category="ats">
+                                <button class="faq-question">Why does my resume get rejected even though I'm qualified?
+                                    <i class="fa-solid fa-plus"></i></button>
+                                <div class="faq-answer">
+                                    <p>ATS parsers look for exact keyword matches and simple formatting. If your layout
+                                        is too complex or you use different terminology than the job description, the
+                                        system may rank you poorly regardless of your actual skills.</p>
+                                </div>
+                            </div>
+                            <div class="faq-item" data-category="app">
+                                <button class="faq-question">How accurate is ByteHearts's ATS score? <i
+                                        class="fa-solid fa-plus"></i></button>
+                                <div class="faq-answer">
+                                    <p>Our score uses industry-standard TF-IDF and Cosine Similarity algorithms to mimic
+                                        exactly how enterprise ATS systems rank keyword relevance against job
+                                        descriptions.</p>
+                                </div>
+                            </div>
+                            <div class="faq-item" data-category="app">
+                                <button class="faq-question">Is my resume data safe? Who can see it? <i
+                                        class="fa-solid fa-plus"></i></button>
+                                <div class="faq-answer">
+                                    <p>Your data is processed securely and is never shared with third parties. Once your
+                                        session ends, the analysis data is cleared.</p>
+                                </div>
+                            </div>
+                            <div class="faq-item" data-category="pricing">
+                                <button class="faq-question">Is ByteHearts free to use? <i
+                                        class="fa-solid fa-plus"></i></button>
+                                <div class="faq-answer">
+                                    <p>Yes, the core resume analysis and live-preview builder are completely free to
+                                        use!</p>
+                                </div>
+                            </div>
+                            <div class="faq-item" data-category="tips">
+                                <button class="faq-question">Should I have a different resume for every job I apply to?
+                                    <i class="fa-solid fa-plus"></i></button>
+                                <div class="faq-answer">
+                                    <p>Yes, highly recommended. You should always tailor your bullet points and keywords
+                                        to match the specific job description you are targeting.</p>
+                                </div>
+                            </div>
+                            <div class="faq-item" data-category="tips">
+                                <button class="faq-question">What resume format works best with ATS? <i
+                                        class="fa-solid fa-plus"></i></button>
+                                <div class="faq-answer">
+                                    <p>Standard PDFs with simple, single-column layouts, standard fonts, and clear
+                                        section headings (Experience, Education, Skills) work best.</p>
+                                </div>
+                            </div>
+                            <div class="faq-item" data-category="tips">
+                                <button class="faq-question">How long should my resume be? <i
+                                        class="fa-solid fa-plus"></i></button>
+                                <div class="faq-answer">
+                                    <p>Usually one page for early to mid-career professionals, and two pages if you have
+                                        10+ years of highly relevant experience.</p>
+                                </div>
+                            </div>
+                            <div class="faq-item" data-category="app">
+                                <button class="faq-question">Can I use ByteHearts for non-tech jobs? <i
+                                        class="fa-solid fa-plus"></i></button>
+                                <div class="faq-answer">
+                                    <p>Absolutely! The keyword matching algorithm works perfectly for any industry, from
+                                        finance to healthcare to marketing.</p>
+                                </div>
+                            </div>
+                            <div class="faq-item" data-category="pricing">
+                                <button class="faq-question">Can I cancel my Pro subscription anytime? <i
+                                        class="fa-solid fa-plus"></i></button>
+                                <div class="faq-answer">
+                                    <p>Yes, if you choose to upgrade in the future, subscriptions can be canceled at any
+                                        time with no hidden fees.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="info-section">
+                    <h2 class="section-title">Features</h2>
+                    <p class="section-subtitle">Three tools, one goal — get you hired</p>
+                    <div class="features-grid">
+                        <div class="feature-card glass-panel">
+                            <div class="feature-icon">📊</div>
+                            <h4>ATS Score</h4>
+                            <p>Get a clear 0–100 score showing how well your resume passes ATS filters.</p>
+                        </div>
+                        <div class="feature-card glass-panel">
+                            <div class="feature-icon">✍️</div>
+                            <h4>Resume Builder</h4>
+                            <p>Build a new ATS-optimized resume from scratch with our guided templates.</p>
+                        </div>
+                        <div class="feature-card glass-panel">
+                            <div class="feature-icon">💡</div>
+                            <h4>Smart Suggestions</h4>
+                            <p>Actionable, specific fixes — not generic tips — to improve your score fast.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="optimizer-section" class="hidden">
+                <div class="inputs-grid">
+                    <!-- Resume Upload -->
+                    <div class="input-card glass-panel">
+                        <h3><i class="fa-solid fa-file-pdf"></i> 1. Upload Resume</h3>
+                        <div class="file-upload-wrapper" id="drop-zone">
+                            <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                            <p>Drag & Drop your PDF here or</p>
+                            <label for="resume-upload" class="btn-primary">Browse Files</label>
+                            <input type="file" id="resume-upload" accept=".pdf" hidden>
+                            <p id="file-name" class="file-name-display"></p>
+                        </div>
+                    </div>
+
+                    <!-- Job Description Input -->
+                    <div class="input-card glass-panel">
+                        <h3><i class="fa-solid fa-crosshairs"></i> 2. Target Job Description</h3>
+                        <textarea id="job-description"
+                            placeholder="Paste the job description here to analyze against..."></textarea>
+                    </div>
+                </div>
+
+                <button id="analyze-btn" class="btn-action pulse-animation">
+                    <i class="fa-solid fa-rocket"></i> Analyze & Optimize
+                </button>
+            </div>
+
+            <!-- Create New Resume Section -->
+            <div id="build-section" class="hidden">
+                <div class="builder-layout">
+                    <!-- Left Pane: Controls & Inputs -->
+                    <div class="builder-controls glass-panel">
+                        <div class="builder-header">
+                            <h3><i class="fa-solid fa-address-card"></i> Resume Builder</h3>
+                            <div class="builder-actions">
+                                <button id="btn-auto-tailor" class="btn-action pulse-animation"
+                                    style="padding: 0.5rem 1rem; font-size: 0.9rem;"><i
+                                        class="fa-solid fa-wand-magic-sparkles"></i> AI Tailor</button>
+                                <button id="btn-check-ats" class="btn-secondary"><i
+                                        class="fa-solid fa-magnifying-glass-chart"></i> Check ATS Score</button>
+                                <button id="btn-download-pdf" class="btn-primary"><i class="fa-solid fa-file-pdf"></i>
+                                    Download PDF</button>
+                            </div>
+                        </div>
+
+                        <div class="template-selector-container">
+                            <label>Choose Template:</label>
+                            <div class="template-selector" id="live-template-selector">
+                                <button class="template-btn active" data-template="classic">Classic</button>
+                                <button class="template-btn" data-template="modern">Modern</button>
+                                <button class="template-btn" data-template="minimal">Minimal</button>
+                            </div>
+                        </div>
+
+                        <div class="builder-body">
+                            <!-- Vertical Tabs -->
+                            <div class="builder-tabs">
+                                <button class="tab-btn active" data-tab="tab-personal">👤 Personal</button>
+                                <button class="tab-btn" data-tab="tab-summary">📝 Summary</button>
+                                <button class="tab-btn" data-tab="tab-experience">💼 Experience</button>
+                                <button class="tab-btn" data-tab="tab-education">🎓 Education</button>
+                                <button class="tab-btn" data-tab="tab-skills">⚡ Skills</button>
+                                <button class="tab-btn" data-tab="tab-projects">🚀 Projects</button>
+                                <button class="tab-btn" data-tab="tab-certs">🏆 Certs</button>
+                            </div>
+
+                            <!-- Form Contents -->
+                            <div class="builder-forms">
+                                <!-- Personal Info Tab -->
+                                <div class="form-tab-content active" id="tab-personal">
+                                    <h4>Personal Information</h4>
+                                    <div class="form-grid">
+                                        <div class="input-group">
+                                            <label>First Name</label>
+                                            <input type="text" id="live-first-name" placeholder="John">
+                                        </div>
+                                        <div class="input-group">
+                                            <label>Last Name</label>
+                                            <input type="text" id="live-last-name" placeholder="Doe">
+                                        </div>
+                                        <div class="input-group" style="grid-column: span 2;">
+                                            <label>Job Title / Headline</label>
+                                            <input type="text" id="live-job-title"
+                                                placeholder="Senior Software Engineer">
+                                        </div>
+                                        <div class="input-group">
+                                            <label>Email</label>
+                                            <input type="email" id="live-email" placeholder="john@example.com">
+                                        </div>
+                                        <div class="input-group">
+                                            <label>Phone</label>
+                                            <input type="text" id="live-phone" placeholder="+1 555-0100">
+                                        </div>
+                                        <div class="input-group">
+                                            <label>City, State</label>
+                                            <input type="text" id="live-location" placeholder="New York, NY">
+                                        </div>
+                                        <div class="input-group">
+                                            <label>LinkedIn URL</label>
+                                            <input type="text" id="live-linkedin" placeholder="linkedin.com/in/johndoe">
+                                        </div>
+                                        <div class="input-group" style="grid-column: span 2;">
+                                            <label>GitHub / Portfolio</label>
+                                            <input type="text" id="live-portfolio" placeholder="github.com/johndoe">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Summary Tab -->
+                                <div class="form-tab-content hidden" id="tab-summary">
+                                    <h4>Professional Summary</h4>
+                                    <div class="input-group">
+                                        <label>Summary Statement</label>
+                                        <textarea id="live-summary" rows="8"
+                                            placeholder="A brief, impactful overview of your career and key strengths..."></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Experience Tab -->
+                                <div class="form-tab-content hidden" id="tab-experience">
+                                    <h4>Work Experience</h4>
+                                    <div id="experience-list">
+                                        <!-- Dynamic items here -->
+                                    </div>
+                                    <button id="add-experience-btn" class="btn-secondary btn-small"
+                                        style="margin-top: 1rem;"><i class="fa-solid fa-plus"></i> Add
+                                        Experience</button>
+                                </div>
+
+                                <!-- Education Tab -->
+                                <div class="form-tab-content hidden" id="tab-education">
+                                    <h4>Education</h4>
+                                    <div id="education-list">
+                                        <!-- Dynamic items here -->
+                                    </div>
+                                    <button id="add-education-btn" class="btn-secondary btn-small"
+                                        style="margin-top: 1rem;"><i class="fa-solid fa-plus"></i> Add
+                                        Education</button>
+                                </div>
+
+                                <!-- Skills Tab -->
+                                <div class="form-tab-content hidden" id="tab-skills">
+                                    <h4>Skills</h4>
+                                    <div class="input-group">
+                                        <label>Key Skills (comma separated)</label>
+                                        <textarea id="live-skills" rows="4"
+                                            placeholder="Python, React, Project Management..."></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Projects Tab -->
+                                <div class="form-tab-content hidden" id="tab-projects">
+                                    <h4>Projects</h4>
+                                    <div id="projects-list">
+                                        <!-- Dynamic items here -->
+                                    </div>
+                                    <button id="add-project-btn" class="btn-secondary btn-small"
+                                        style="margin-top: 1rem;"><i class="fa-solid fa-plus"></i> Add Project</button>
+                                </div>
+
+                                <!-- Certifications Tab -->
+                                <div class="form-tab-content hidden" id="tab-certs">
+                                    <h4>Certifications</h4>
+                                    <div class="input-group">
+                                        <label>Certifications (one per line)</label>
+                                        <textarea id="live-certs" rows="4"
+                                            placeholder="AWS Certified Solutions Architect&#10;PMP Certification"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Pane: Live Preview -->
+                    <div class="builder-preview glass-panel">
+                        <div class="preview-header">
+                            <span><i class="fa-solid fa-eye"></i> Live Preview</span>
+                            <span class="preview-status">Updates as you type</span>
+                        </div>
+                        <div class="resume-document-wrapper">
+                            <div class="resume-document template-classic" id="live-preview-container">
+                                <!-- Rendered HTML will go here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading-state" class="loading-container hidden">
+                <div class="spinner"></div>
+                <p id="loading-text">Analyzing documents...</p>
+            </div>
+
+            <!-- Results Section (Hidden initially) -->
+            <div id="results-section" class="results-container hidden">
+                <h2 class="section-heading">Analysis Results</h2>
+
+                <div class="results-grid">
+                    <!-- Score Card -->
+                    <div class="score-card glass-panel">
+                        <h3>ATS Match Score</h3>
+                        <div class="score-circle">
+                            <svg viewBox="0 0 36 36" class="circular-chart">
+                                <path class="circle-bg"
+                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path id="score-path" class="circle" stroke-dasharray="0, 100"
+                                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <text x="18" y="20.35" class="percentage" id="score-value">0%</text>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Missing Skills -->
+                    <div class="skills-card glass-panel">
+                        <h3><i class="fa-solid fa-magnifying-glass-chart"></i> Missing Keywords</h3>
+                        <div id="skills-list" class="skills-list">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- AI Suggestions -->
+                    <div class="skills-card glass-panel" style="grid-column: 1 / -1;">
+                        <h3><i class="fa-solid fa-lightbulb"></i> Actionable Suggestions</h3>
+                        <div id="suggestions-list" class="skills-list" style="flex-direction: column; gap: 0.75rem;">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Resume Builder Workspace -->
+                    <div class="builder-workspace glass-panel hidden" id="builder-workspace">
+                        <div class="workspace-header">
+                            <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Resume Builder</h3>
+                            <div class="workspace-actions">
+                                <div class="template-selector hidden" id="template-selector">
+                                    <button class="template-btn active"
+                                        data-template="professional">Professional</button>
+                                    <button class="template-btn" data-template="modern">Modern</button>
+                                    <button class="template-btn" data-template="executive">Executive</button>
+                                </div>
+                                <button id="preview-toggle-btn" class="btn-secondary"><i class="fa-solid fa-eye"></i>
+                                    Toggle View</button>
+                                <button id="download-btn" class="btn-primary"><i class="fa-solid fa-file-pdf"></i>
+                                    Download PDF</button>
+                            </div>
+                        </div>
+
+                        <div class="editor-preview-container">
+                            <!-- Editor Pane -->
+                            <div class="pane editor-pane" id="editor-pane">
+                                <label for="markdown-editor" class="pane-label"><i
+                                        class="fa-solid fa-pen-to-square"></i> Edit Markdown</label>
+                                <textarea id="markdown-editor" spellcheck="false"
+                                    placeholder="Your tailored resume will appear here for editing..."></textarea>
+                            </div>
+
+                            <!-- Preview Pane -->
+                            <div class="pane preview-pane" id="preview-pane">
+                                <label class="pane-label"><i class="fa-solid fa-file-lines"></i> Live Preview</label>
+                                <div class="resume-document-wrapper">
+                                    <div class="resume-document" id="tailored-preview">
+                                        <!-- Rendered HTML will go here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Marked.js for markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <!-- Load worker synchronously to force main-thread execution, bypassing all CORS/iframe errors -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js"></script>
+    <script>
+        // Explicitly clear workerSrc so PDF.js doesn't try to fetch or spawn anything
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+    </script>
+    <script src="script.js"></script>
+</body>
+
+</html>
